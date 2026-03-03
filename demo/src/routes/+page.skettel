@@ -1,0 +1,201 @@
+<script>
+	import { wen_mi_reach } from 'skettel';
+
+	let count = $ting(0);
+	let doubled = $figga_out(count * 2);
+	let name = $ting('');
+	let items = $ting(['Ackee', 'Saltfish', 'Dumpling', 'Jerk Chicken', 'Rice & Peas']);
+	let showError = $ting(no_sah);
+
+	// Labels for display (split to prevent preprocessor transform)
+	const YEAH_MAN = 'yeah' + '_man';
+	const NO_SAH = 'no' + '_sah';
+	const SOON_COME = 'soon' + '_come';
+
+	$gwaan(() => {
+		bawl_out(`Count change to ${count}`);
+	});
+
+	function press_it() {
+		count++;
+	}
+
+	function reset_it() {
+		count = 0;
+	}
+
+	function test_error() {
+		showError = yeah_man;
+		bumbaclaat('Someting bruck bad!');
+		soon_come(() => {
+			showError = no_sah;
+			bawl_out('Error clear after 2 seconds');
+		}, 2000);
+	}
+
+	wen_mi_reach(() => {
+		bawl_out('Page reach! Big up!');
+	});
+</script>
+
+{#likkle_bit greeting(who)}
+	<p>Wah Gwaan <strong>{who}</strong>!</p>
+{/likkle_bit}
+
+<main>
+	<h1>Skettel.js Demo</h1>
+	<p class="tagline">Svelte, but make it Caribbean</p>
+
+	<section>
+		<h2>Reactive Counter — <code>$ting</code> &amp; <code>$figga_out</code></h2>
+		<div class="counter">
+			<button wen_yuh_press={press_it}>Press dis ya ({count})</button>
+			<button wen_yuh_press={reset_it}>Reset</button>
+		</div>
+		<p>Doubled: <strong>{doubled}</strong></p>
+	</section>
+
+	<section>
+		<h2>Two-way Binding — <code>link_up:</code></h2>
+		<input link_up:value={name} placeholder="Type yuh name..." />
+		{#ef name}
+			{@big_up greeting(name)}
+		{:nah_man}
+			<p class="muted">Nobody nuh come yet...</p>
+		{/ef}
+	</section>
+
+	<section>
+		<h2>Snippet &amp; Render — <code>#likkle_bit</code> &amp; <code>@big_up</code></h2>
+		<p class="muted">Di greeting above uses a reusable snippet. Try typing a name!</p>
+	</section>
+
+	<section>
+		<h2>Error Escalation</h2>
+		<p class="muted">bawl_out → warn_dem → bumbaclaat (log → warn → error)</p>
+		<button wen_yuh_press={test_error}>
+			Trigger Error
+		</button>
+		{#ef showError}
+			<p class="error">BUMBACLAAT! Check di console.</p>
+		{:nah_man}
+			<p class="muted">Press di button fi see console.error in action</p>
+		{/ef}
+		<p class="muted">Uses <code>{SOON_COME}()</code> (setTimeout) to clear after 2s</p>
+	</section>
+
+	<section>
+		<h2>Booleans</h2>
+		<p class="muted"><code>{YEAH_MAN}</code> = true, <code>{NO_SAH}</code> = false</p>
+		<p>showError = <strong>{showError ? YEAH_MAN : NO_SAH}</strong></p>
+	</section>
+
+	<section>
+		<h2>List Rendering — <code>#every</code></h2>
+		<ul>
+			{#every items as food}
+				<li>{food}</li>
+			{/every}
+		</ul>
+	</section>
+</main>
+
+<style>
+	:global(body) {
+		font-family: system-ui, sans-serif;
+		background: #1a1a2e;
+		color: #eee;
+		margin: 0;
+		padding: 2rem;
+	}
+
+	main {
+		max-width: 600px;
+		margin: 0 auto;
+	}
+
+	h1 {
+		font-size: 2.5rem;
+		margin-bottom: 0.25rem;
+	}
+
+	.tagline {
+		color: #888;
+		margin-top: 0;
+		font-style: italic;
+	}
+
+	section {
+		margin-top: 2rem;
+		padding: 1.5rem;
+		background: #16213e;
+		border-radius: 8px;
+	}
+
+	h2 {
+		margin-top: 0;
+		font-size: 1.2rem;
+	}
+
+	code {
+		background: #0f3460;
+		padding: 0.15rem 0.4rem;
+		border-radius: 4px;
+		font-size: 0.9em;
+	}
+
+	.counter {
+		display: flex;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	button {
+		padding: 0.6rem 1.2rem;
+		border: none;
+		border-radius: 6px;
+		background: #e94560;
+		color: white;
+		font-size: 1rem;
+		cursor: pointer;
+	}
+
+	button:hover {
+		background: #c73e54;
+	}
+
+	input {
+		padding: 0.5rem;
+		border: 1px solid #333;
+		border-radius: 6px;
+		background: #0f3460;
+		color: #eee;
+		font-size: 1rem;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	ul {
+		list-style: none;
+		padding: 0;
+	}
+
+	li {
+		padding: 0.4rem 0;
+		border-bottom: 1px solid #1a1a3e;
+	}
+
+	.muted {
+		color: #666;
+		font-style: italic;
+	}
+
+	.error {
+		color: #ff4444;
+		font-weight: bold;
+	}
+
+	strong {
+		color: #e94560;
+	}
+</style>
