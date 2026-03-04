@@ -1,3 +1,5 @@
+import MagicString from 'magic-string';
+
 const transforms = [
   // === Runes ===
   // Sub-methods must come before base runes to avoid partial matches
@@ -15,6 +17,7 @@ const transforms = [
 
   // === Template blocks ===
   ['{#ef ', '{#if '],
+  ['{:nah_man ef ', '{:else if '],
   ['{:nah_man}', '{:else}'],
   ['{/ef}', '{/if}'],
   ['{#every ', '{#each '],
@@ -85,28 +88,132 @@ const importTransforms = [
   ['"skettel"', '"svelte"'],
 ];
 
-export function applyTransforms(code) {
-  let result = code;
+/**
+ * Find regions in code that should not be transformed:
+ * string literals (single, double, backtick) and comments (// and /* *\/).
+ * Template literal ${...} expressions are left unprotected.
+ */
+function findProtectedRegions(code) {
+  const regions = [];
+  let i = 0;
 
-  // Import paths first (sub-paths before bare)
+  while (i < code.length) {
+    const ch = code[i];
+    const next = code[i + 1];
+
+    if (ch === "'" || ch === '"') {
+      const quote = ch;
+      const start = i;
+      i++;
+      while (i < code.length) {
+        if (code[i] === '\\') { i += 2; continue; }
+        if (code[i] === quote) { i++; break; }
+        i++;
+      }
+      regions.push([start, i]);
+    } else if (ch === '`') {
+      let segStart = i;
+      i++;
+      while (i < code.length) {
+        if (code[i] === '\\') { i += 2; continue; }
+        if (code[i] === '$' && code[i + 1] === '{') {
+          regions.push([segStart, i]);
+          i += 2;
+          let depth = 1;
+          while (i < code.length && depth > 0) {
+            if (code[i] === '{') depth++;
+            else if (code[i] === '}') depth--;
+            if (depth > 0) i++;
+          }
+          i++;
+          segStart = i;
+          continue;
+        }
+        if (code[i] === '`') { i++; break; }
+        i++;
+      }
+      regions.push([segStart, i]);
+    } else if (ch === '/' && next === '/') {
+      const start = i;
+      i += 2;
+      while (i < code.length && code[i] !== '\n') i++;
+      regions.push([start, i]);
+    } else if (ch === '/' && next === '*') {
+      const start = i;
+      i += 2;
+      while (i < code.length && !(code[i] === '*' && code[i + 1] === '/')) i++;
+      i += 2;
+      regions.push([start, i]);
+    } else {
+      i++;
+    }
+  }
+
+  return regions;
+}
+
+export function applyTransforms(code, filename) {
+  const s = new MagicString(code);
+  const protectedRegions = findProtectedRegions(code);
+  const overwritten = [];
+
+  function overlaps(start, end) {
+    for (const [s, e] of overwritten) {
+      if (start < e && end > s) return true;
+    }
+    return false;
+  }
+
+  function isProtected(start, end) {
+    for (const [s, e] of protectedRegions) {
+      if (start >= s && end <= e) return true;
+    }
+    return false;
+  }
+
+  function replaceAllLiteral(from, to, skipProtection = false) {
+    let idx = code.indexOf(from);
+    while (idx !== -1) {
+      const end = idx + from.length;
+      if (!overlaps(idx, end) && (skipProtection || !isProtected(idx, end))) {
+        s.overwrite(idx, end, to);
+        overwritten.push([idx, end]);
+      }
+      idx = code.indexOf(from, idx + from.length);
+    }
+  }
+
+  // Import paths first (these intentionally target quoted strings)
   for (const [from, to] of importTransforms) {
-    result = result.replaceAll(from, to);
+    replaceAllLiteral(from, to, true);
   }
 
   // Literal string replacements
   for (const [from, to] of transforms) {
-    result = result.replaceAll(from, to);
+    replaceAllLiteral(from, to);
   }
 
   // Store replacements
   for (const [from, to] of storeTransforms) {
-    result = result.replaceAll(from, to);
+    replaceAllLiteral(from, to);
   }
 
   // Regex replacements (word-boundary)
   for (const [pattern, to] of regexTransforms) {
-    result = result.replace(pattern, to);
+    const re = new RegExp(pattern.source, pattern.flags);
+    let match;
+    while ((match = re.exec(code)) !== null) {
+      const start = match.index;
+      const end = start + match[0].length;
+      if (!overlaps(start, end) && !isProtected(start, end)) {
+        s.overwrite(start, end, to);
+        overwritten.push([start, end]);
+      }
+    }
   }
 
-  return result;
+  return {
+    code: s.toString(),
+    map: s.generateMap({ source: filename, hires: true }),
+  };
 }

@@ -5,7 +5,7 @@ export function skettel() {
     name: 'skettel',
     markup({ content, filename }) {
       if (filename && !filename.endsWith('.skettel')) return;
-      return { code: applyTransforms(content) };
+      return applyTransforms(content, filename);
     }
   };
 }

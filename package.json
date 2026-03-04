@@ -34,5 +34,8 @@
   "devDependencies": {
     "svelte": "^5.0.0",
     "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "magic-string": "^0.30.21"
   }
 }

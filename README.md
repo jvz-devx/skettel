@@ -53,6 +53,8 @@ Done. Yuh ready fi cook.
 ```skettel
 {#ef hungry}
   <p>Mi want food</p>
+{:nah_man ef thirsty}
+  <p>Mi want drink</p>
 {:nah_man}
   <p>Mi good</p>
 {/ef}
@@ -192,6 +194,8 @@ const time = jus_look(Date.now());  // readable
 
 {#ef count > 10}
   <p>Yuh a go hard!</p>
+{:nah_man ef count > 5}
+  <p>Yuh warming up!</p>
 {:nah_man}
   <p>Keep pressing...</p>
 {/ef}
@@ -201,7 +205,7 @@ const time = jus_look(Date.now());  // readable
 
 ## How It Works
 
-Skettel is a standard [Svelte preprocessor](https://svelte.dev/docs/svelte-compiler#preprocess). It runs regex-based transforms on your `.skettel` files before Svelte sees them, converting Patois keywords back to valid Svelte syntax. No runtime overhead. No extra bundle size. Just vibes.
+Skettel is a standard [Svelte preprocessor](https://svelte.dev/docs/svelte-compiler#preprocess). It transforms your `.skettel` files before Svelte sees them, converting Patois keywords back to valid Svelte syntax. Includes source maps for proper debugging and protects string literals and comments from accidental transforms. No runtime overhead. No extra bundle size. Just vibes.
 
 ```
 .skettel file → Skettel preprocessor → Valid Svelte → Svelte compiler → JS
@@ -212,7 +216,7 @@ Skettel is a standard [Svelte preprocessor](https://svelte.dev/docs/svelte-compi
 ## FAQ
 
 **Q: Is this production ready?**
-A: It's a joke package, but technically yes. It's just string transforms.
+A: It's a joke package, but technically yes. It's just string transforms with source maps and string/comment protection.
 
 **Q: Does it affect bundle size?**
 A: No. Zero runtime. Everything happens at compile time.
@@ -233,7 +237,7 @@ A: That depends on how criss your team lead is.
 PRs welcome! Some ideas:
 - 🎨 Patois CSS properties (`background-color` → `back-a-di-wall`?)
 - 🗣️ VS Code syntax highlighting for `.skettel` files
-- 📖 More Patois keywords
+- 📖 More/Better Patois keywords
 - 🌍 Other language variants (Nigerian Pidgin? Trinidadian Creole?)
 
 ---
@@ -247,5 +251,5 @@ MIT — Do wah yuh want wid it.
 <p align="center">
   <strong>Skettel.js</strong> — Svelte, but make it Caribbean 🏝️
   <br/>
-  <em>Built with ❤️ and jerk seasoning</em>
+  <em>Built with ❤️</em>
 </p>
